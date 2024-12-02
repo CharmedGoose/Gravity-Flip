@@ -1,2 +1,2 @@
-# Gravity-Flip
-A platformer about gravity flipping
+# Gravity Flip
+A platformer about gravity-flipping
