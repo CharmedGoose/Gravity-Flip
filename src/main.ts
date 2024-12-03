@@ -1,4 +1,7 @@
+import kaplay from 'kaplay';
 import 'kaplay/global';
+
+kaplay();
 
 loadRoot('./');
 loadSprite('bean', 'sprites/bean.png');
