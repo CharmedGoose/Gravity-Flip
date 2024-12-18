@@ -70,10 +70,13 @@ scene('game', () => {
       | OffScreenComp
     >;
 
+    let hasScoreIncreased = false;
     const random = rand() < 0.5;
+    const wdithOfBlock = rand(200, 400);
+
     if (random) {
       block = add([
-        rect(rand(200, 400), rand(24, 64)),
+        rect(wdithOfBlock, rand(24, 64)),
         area(),
         body({ isStatic: false, gravityScale: 0.1 }),
         outline(4),
@@ -86,7 +89,7 @@ scene('game', () => {
       ]);
     } else {
       block = add([
-        rect(rand(200, 400), rand(24, 64)),
+        rect(wdithOfBlock, rand(24, 64)),
         area(),
         body({ isStatic: false, gravityScale: 0.1 }),
         outline(4),
@@ -99,9 +102,12 @@ scene('game', () => {
       ]);
     }
 
-    block.onDestroy(() => {
-      score++;
-      scoreText.text = score.toString();
+    block.onUpdate(() => {
+      if (block.pos.x + wdithOfBlock / 2 < player.pos.x && !hasScoreIncreased) {
+        hasScoreIncreased = true;
+        score++;
+        scoreText.text = score.toString();
+      }
     });
 
     wait(rand(0.5, 1.5), () => {
