@@ -23,7 +23,7 @@ loadSprite('backgroundEffect', 'sprites/backgroundEffect.png', {
   sliceX: 2,
   sliceY: 3,
   anims: {
-    sparkle: { from: 0, to: 5, speed: 14, loop: true },
+    sparkle: { from: 0, to: 5, speed: 10, loop: true },
   },
 });
 
@@ -74,7 +74,7 @@ scene('game', () => {
   ]);
 
   spawnBackgroundEffects();
-  //spawnBlocks();
+  spawnBlocks();
 
   onKeyPress('space', () => {
     setGravityDirection(new Vec2(0, -getGravityDirection().y));
@@ -156,10 +156,10 @@ scene('game', () => {
       sprite('backgroundEffect'),
       pos(rand(0, width()), rand(0, height())),
       anchor('center'),
-      //move(LEFT, 500),
-      //offscreen({ destroy: true }),
+      move(LEFT, 1000),
+      offscreen({ destroy: true }),
       layer('background'),
-      'baclgroundEffect',
+      'backgroundEffect',
     ]);
 
     effect.play('sparkle');
