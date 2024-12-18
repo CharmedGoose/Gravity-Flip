@@ -154,9 +154,9 @@ scene('game', () => {
   function spawnBackgroundEffects() {
     const effect = add([
       sprite('backgroundEffect'),
-      pos(rand(0, width()), rand(0, height())),
+      pos(rand(width() - 100, width()), rand(height())),
       anchor('center'),
-      move(LEFT, 1000),
+      move(LEFT, 500 * speed),
       offscreen({ destroy: true }),
       layer('background'),
       'backgroundEffect',
@@ -164,7 +164,7 @@ scene('game', () => {
 
     effect.play('sparkle');
 
-    wait(rand(0.1, 0.3), () => {
+    wait(rand(0.6, 0.9), () => {
       spawnBackgroundEffects();
     });
   }
