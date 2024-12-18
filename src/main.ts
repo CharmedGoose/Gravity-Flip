@@ -1,40 +1,67 @@
-import kaplay, { AnchorComp, AreaComp, BodyComp, ColorComp, EmptyComp, GameObj, OffScreenComp, OutlineComp, PosComp, RectComp } from 'kaplay';
+import kaplay, {
+  AnchorComp,
+  AreaComp,
+  BodyComp,
+  ColorComp,
+  EmptyComp,
+  GameObj,
+  OffScreenComp,
+  OutlineComp,
+  PosComp,
+  RectComp,
+} from 'kaplay';
 import 'kaplay/global';
 
 kaplay();
 setGravity(7500);
-setBackground(Color.WHITE);
+setBackground(Color.fromHex('#2c3bae'));
+layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
 loadSprite('player', 'sprites/player.png');
+loadSprite('backgroundEffect', 'sprites/backgroundEffect.png', {
+  sliceX: 2,
+  sliceY: 3,
+  anims: {
+    sparkle: { from: 0, to: 5, speed: 14, loop: true },
+  },
+});
 
 let score = 0;
+let highScore = 0;
 
 scene('game', () => {
+  let speed = 1;
   score = 0;
   setGravityDirection(new Vec2(0, 1));
 
   add([
     rect(width(), 48),
-    pos(0, height() - 48),
+    pos(0, height()),
     outline(),
     area(),
     body({ isStatic: true }),
     color(Color.BLACK),
+    layer('game'),
+    'floor'
   ]);
   add([
     rect(width(), 48),
-    pos(0, 0),
+    pos(0, 0 - 48),
     outline(),
     area(),
     body({ isStatic: true }),
     color(Color.BLACK),
+    layer('game'),
+    'ceiling'
   ]);
 
   const scoreText = add([
     text(score.toString()),
     pos(width() - 100, 10),
     color(Color.WHITE),
+    layer('ui'),
+    'score'
   ]);
 
   const player = add([
@@ -42,9 +69,12 @@ scene('game', () => {
     sprite('player', { width: 50, height: 50 }),
     area(),
     body({ stickToPlatform: false }),
+    layer('game'),
+    'player',
   ]);
 
-  spawnBlocks();
+  spawnBackgroundEffects();
+  //spawnBlocks();
 
   onKeyPress('space', () => {
     setGravityDirection(new Vec2(0, -getGravityDirection().y));
@@ -55,6 +85,10 @@ scene('game', () => {
     addKaboom(player.pos);
     shake();
     go('lose');
+  });
+
+  onUpdate(() => {
+    speed += 0.0001;
   });
 
   function spawnBlocks() {
@@ -83,8 +117,9 @@ scene('game', () => {
         pos(width(), height() - 48),
         anchor('bot'),
         color(Color.RED),
-        move(LEFT, 1000),
+        move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
+        layer('game'),
         'obstacle',
       ]);
     } else {
@@ -96,8 +131,9 @@ scene('game', () => {
         pos(width(), 48),
         anchor('top'),
         color(Color.RED),
-        move(LEFT, 1000),
+        move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
+        layer('game'),
         'obstacle',
       ]);
     }
@@ -114,24 +150,48 @@ scene('game', () => {
       spawnBlocks();
     });
   }
+
+  function spawnBackgroundEffects() {
+    const effect = add([
+      sprite('backgroundEffect'),
+      pos(rand(0, width()), rand(0, height())),
+      anchor('center'),
+      //move(LEFT, 500),
+      //offscreen({ destroy: true }),
+      layer('background'),
+      'baclgroundEffect',
+    ]);
+
+    effect.play('sparkle');
+
+    wait(rand(0.1, 0.3), () => {
+      spawnBackgroundEffects();
+    });
+  }
 });
 
 scene('lose', () => {
+  if (score > highScore) {
+    highScore = score;
+  }
   add([
-    text(`Game Over \nScore: ${score}`),
+    text(`Game Over \nScore: ${score} \nHigh Score: ${highScore}`, {
+      align: 'center',
+    }),
     pos(center()),
     anchor('center'),
     color(Color.BLACK),
+    layer('ui'),
   ]);
   add([
     rect(200, 50),
-    //text('Try Again'),
     pos(center().add(0, 100)),
     outline(),
     area(),
     anchor('center'),
     body({ isStatic: true }),
     color(Color.GREEN),
+    layer('ui'),
   ]).onClick(() => go('game'));
   add([
     text('Try Again'),
@@ -141,6 +201,7 @@ scene('lose', () => {
     anchor('center'),
     body({ isStatic: true }),
     color(Color.BLACK),
+    layer('ui'),
   ]).onClick(() => go('game'));
   onKeyPress('space', () => go('game'));
 });
