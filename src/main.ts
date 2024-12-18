@@ -14,7 +14,7 @@ import 'kaplay/global';
 
 kaplay();
 setGravity(7500);
-setBackground(Color.fromHex('#2c3bae'));
+setBackground(Color.BLACK);//fromHex('#2c3bae'));
 layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
