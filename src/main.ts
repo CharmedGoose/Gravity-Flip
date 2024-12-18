@@ -9,11 +9,6 @@ loadRoot('./');
 loadSprite('player', 'sprites/player.png');
 
 let score = 0;
-const scoreText = add([
-  text(score.toString()),
-  pos(10, 10),
-  color(Color.WHITE)
-]);
 
 scene('game', () => {
   score = 0;
@@ -34,6 +29,12 @@ scene('game', () => {
     area(),
     body({ isStatic: true }),
     color(Color.BLACK),
+  ]);
+
+  const scoreText = add([
+    text(score.toString()),
+    pos(width() - 100, 10),
+    color(Color.WHITE),
   ]);
 
   const player = add([
@@ -68,7 +69,7 @@ scene('game', () => {
       | EmptyComp
       | OffScreenComp
     >;
-  
+
     const random = rand() < 0.5;
     if (random) {
       block = add([
@@ -97,12 +98,12 @@ scene('game', () => {
         'obstacle',
       ]);
     }
-  
+
     block.onDestroy(() => {
       score++;
       scoreText.text = score.toString();
     });
-  
+
     wait(rand(0.5, 1.5), () => {
       spawnBlocks();
     });
