@@ -2,7 +2,6 @@ import kaplay, {
   AnchorComp,
   AreaComp,
   BodyComp,
-  ColorComp,
   EmptyComp,
   GameObj,
   OffScreenComp,
@@ -14,11 +13,11 @@ import 'kaplay/global';
 
 kaplay();
 setGravity(7500);
-setBackground(Color.BLACK); //fromHex('#2c3bae'));
+setBackground(Color.BLACK);
 layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
-loadSprite('asteroid', 'sprites/asteroid.png')
+loadSprite('asteroid', 'sprites/asteroid.png');
 loadSprite('player', 'sprites/player.png', {
   sliceX: 2,
   sliceY: 1,
@@ -77,7 +76,6 @@ scene('game', () => {
     sprite('player', { width: 34, height: 44 }),
     area(),
     body({ stickToPlatform: false }),
-    rotate(),
     layer('game'),
     'player',
   ]);
@@ -96,7 +94,6 @@ scene('game', () => {
   });
 
   player.onCollide('obstacle', () => {
-    addKaboom(player.pos);
     shake();
     go('lose');
   });
@@ -129,7 +126,6 @@ scene('game', () => {
         outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), height() - 48),
         anchor('bot'),
-        //color(Color.RED),
         move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
         layer('game'),
@@ -143,7 +139,6 @@ scene('game', () => {
         outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), 48),
         anchor('top'),
-        //color(Color.RED),
         move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
         layer('game'),
@@ -167,6 +162,31 @@ scene('game', () => {
 
 scene('lose', () => {
   speed = 1;
+
+  let invert = false;
+  const player = add([
+    pos(0, height() / 2),
+    sprite('player', { width: 68, height: 88 }),
+    anchor('center'),
+    rotate(),
+    layer('game'),
+  ]);
+
+  onUpdate(() => {
+    if (player.pos.x >= width()) {
+      invert = true;
+    } else if (player.pos.x <= 0) {
+      invert = false;
+    }
+
+    if (invert) {
+      player.moveTo(0, height() / 2, 100);
+    } else {
+      player.moveTo(width(), height() / 2, 100);
+    }
+    player.rotateBy(0.5);
+  });
+
   spawnBackgroundEffects(100);
 
   if (score > highScore) {
@@ -204,7 +224,45 @@ scene('lose', () => {
   onKeyPress('space', () => go('game'));
 });
 
-go('game');
+scene('start', () => {
+  let invert = false;
+  const player = add([
+    pos(0, height() / 2),
+    sprite('player', { width: 68, height: 88 }),
+    anchor('center'),
+    rotate(),
+    layer('game'),
+  ]);
+
+  onUpdate(() => {
+    if (player.pos.x >= width()) {
+      invert = true;
+    } else if (player.pos.x <= 0) {
+      invert = false;
+    }
+
+    if (invert) {
+      player.moveTo(0, height() / 2, 100);
+    } else 
+    {
+      player.moveTo(width(), height() / 2, 100);
+    }
+    player.rotateBy(0.5);
+  });
+
+  spawnBackgroundEffects(100);
+  add([
+    text('Press Space to Start'),
+    pos(center()),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]);
+
+  onKeyPress('space', () => go('game'));
+});
+
+go('start');
 
 function spawnBackgroundEffects(moveSpeed: number) {
   for (let i = 0; i < rand(1, 2); i++) {
