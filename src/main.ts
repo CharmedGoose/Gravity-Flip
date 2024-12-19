@@ -18,6 +18,7 @@ setBackground(Color.BLACK); //fromHex('#2c3bae'));
 layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
+loadSprite('asteroid', 'sprites/asteroid.png')
 loadSprite('player', 'sprites/player.png', {
   sliceX: 2,
   sliceY: 1,
@@ -107,7 +108,6 @@ scene('game', () => {
   function spawnBlocks() {
     let block: GameObj<
       | BodyComp
-      | ColorComp
       | RectComp
       | PosComp
       | OutlineComp
@@ -123,13 +123,13 @@ scene('game', () => {
 
     if (random) {
       block = add([
-        rect(wdithOfBlock, rand(24, 64)),
+        sprite('asteroid', { width: 133, height: 112 }),
         area(),
         body({ isStatic: false, gravityScale: 0.1 }),
-        outline(4),
+        outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), height() - 48),
         anchor('bot'),
-        color(Color.RED),
+        //color(Color.RED),
         move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
         layer('game'),
@@ -137,13 +137,13 @@ scene('game', () => {
       ]);
     } else {
       block = add([
-        rect(wdithOfBlock, rand(24, 64)),
+        sprite('asteroid', { width: 133, height: 112 }),
         area(),
         body({ isStatic: false, gravityScale: 0.1 }),
-        outline(4),
+        outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), 48),
         anchor('top'),
-        color(Color.RED),
+        //color(Color.RED),
         move(LEFT, 1000 * speed),
         offscreen({ destroy: true }),
         layer('game'),
@@ -159,7 +159,7 @@ scene('game', () => {
       }
     });
 
-    wait(rand(0.5, 1.5), () => {
+    wait(rand(0.5 / speed, 1.25 / speed), () => {
       spawnBlocks();
     });
   }
@@ -179,7 +179,7 @@ scene('game', () => {
       effect.play('sparkle');
     }
 
-    wait(rand(0.6, 0.9), () => {
+    wait(rand(0.6 / speed, 0.9 / speed), () => {
       spawnBackgroundEffects();
     });
   }
