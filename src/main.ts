@@ -14,12 +14,19 @@ import 'kaplay/global';
 
 kaplay();
 setGravity(7500);
-setBackground(Color.BLACK);//fromHex('#2c3bae'));
+setBackground(Color.BLACK); //fromHex('#2c3bae'));
 layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
-loadSprite('player', 'sprites/player.png');
-loadSprite('backgroundEffect', 'sprites/backgroundEffect.png', {
+loadSprite('player', 'sprites/player.png', {
+  sliceX: 2,
+  sliceY: 1,
+  anims: {
+    normal: { from: 0, to: 0, speed: 1, loop: true },
+    upsideDown: { from: 1, to: 1, speed: 1, loop: true },
+  },
+});
+loadSprite('sparkle', 'sprites/sparkle.png', {
   sliceX: 2,
   sliceY: 3,
   anims: {
@@ -43,7 +50,7 @@ scene('game', () => {
     body({ isStatic: true }),
     color(Color.BLACK),
     layer('game'),
-    'floor'
+    'floor',
   ]);
   add([
     rect(width(), 48),
@@ -53,7 +60,7 @@ scene('game', () => {
     body({ isStatic: true }),
     color(Color.BLACK),
     layer('game'),
-    'ceiling'
+    'ceiling',
   ]);
 
   const scoreText = add([
@@ -61,14 +68,15 @@ scene('game', () => {
     pos(width() - 100, 10),
     color(Color.WHITE),
     layer('ui'),
-    'score'
+    'score',
   ]);
 
   const player = add([
     pos(120, 80),
-    sprite('player', { width: 50, height: 50 }),
+    sprite('player', { width: 34, height: 44 }),
     area(),
     body({ stickToPlatform: false }),
+    rotate(),
     layer('game'),
     'player',
   ]);
@@ -79,6 +87,11 @@ scene('game', () => {
   onKeyPress('space', () => {
     setGravityDirection(new Vec2(0, -getGravityDirection().y));
     player.jump(200);
+    if (getGravityDirection().y < 0) {
+      player.play('upsideDown');
+    } else {
+      player.play('normal');
+    }
   });
 
   player.onCollide('obstacle', () => {
@@ -153,13 +166,13 @@ scene('game', () => {
 
   function spawnBackgroundEffects() {
     const effect = add([
-      sprite('backgroundEffect'),
+      sprite('sparkle'),
       pos(rand(width() - 100, width()), rand(height())),
       anchor('center'),
       move(LEFT, 500 * speed),
       offscreen({ destroy: true }),
       layer('background'),
-      'backgroundEffect',
+      'sparkle',
     ]);
 
     effect.play('sparkle');
