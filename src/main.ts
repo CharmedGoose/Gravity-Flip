@@ -165,17 +165,19 @@ scene('game', () => {
   }
 
   function spawnBackgroundEffects() {
-    const effect = add([
-      sprite('sparkle'),
-      pos(rand(width() - 100, width()), rand(height())),
-      anchor('center'),
-      move(LEFT, 500 * speed),
-      offscreen({ destroy: true }),
-      layer('background'),
-      'sparkle',
-    ]);
+    for (let i = 0; i < rand(1, 2); i++) {
+      const effect = add([
+        sprite('sparkle'),
+        pos(rand(width() - 200, width()), rand(0, height())),
+        anchor('center'),
+        move(LEFT, 500 * speed),
+        offscreen({ destroy: true }),
+        layer('background'),
+        'sparkle',
+      ]);
 
-    effect.play('sparkle');
+      effect.play('sparkle');
+    }
 
     wait(rand(0.6, 0.9), () => {
       spawnBackgroundEffects();
