@@ -37,9 +37,9 @@ loadSprite('sparkle', 'sprites/sparkle.png', {
 
 let score = 0;
 let highScore = 0;
+let speed = 1;
 
 scene('game', () => {
-  let speed = 1;
   score = 0;
   setGravityDirection(new Vec2(0, 1));
 
@@ -82,7 +82,7 @@ scene('game', () => {
     'player',
   ]);
 
-  spawnBackgroundEffects();
+  spawnBackgroundEffects(500);
   spawnBlocks();
 
   onKeyPress('space', () => {
@@ -163,29 +163,12 @@ scene('game', () => {
       spawnBlocks();
     });
   }
-
-  function spawnBackgroundEffects() {
-    for (let i = 0; i < rand(1, 2); i++) {
-      const effect = add([
-        sprite('sparkle'),
-        pos(rand(width() - 200, width()), rand(0, height())),
-        anchor('center'),
-        move(LEFT, 500 * speed),
-        offscreen({ destroy: true }),
-        layer('background'),
-        'sparkle',
-      ]);
-
-      effect.play('sparkle');
-    }
-
-    wait(rand(0.6 / speed, 0.9 / speed), () => {
-      spawnBackgroundEffects();
-    });
-  }
 });
 
 scene('lose', () => {
+  speed = 1;
+  spawnBackgroundEffects(100);
+
   if (score > highScore) {
     highScore = score;
   }
@@ -195,7 +178,7 @@ scene('lose', () => {
     }),
     pos(center()),
     anchor('center'),
-    color(Color.BLACK),
+    color(Color.WHITE),
     layer('ui'),
   ]);
   add([
@@ -223,21 +206,22 @@ scene('lose', () => {
 
 go('game');
 
-function spawnPillars() {
-  add([
-    rect(48, rand(24, 64)),
-    area(),
-    body({ isStatic: false, gravityScale: 0.1 }),
-    outline(4),
-    pos(width(), height() - 48),
-    anchor('botleft'),
-    color(Color.BLACK),
-    move(LEFT, 1000),
-    offscreen({ destroy: true }),
-    'pillar',
-  ]);
+function spawnBackgroundEffects(moveSpeed: number) {
+  for (let i = 0; i < rand(1, 2); i++) {
+    const effect = add([
+      sprite('sparkle'),
+      pos(rand(width() - 200, width()), rand(0, height())),
+      anchor('center'),
+      move(LEFT, moveSpeed * speed),
+      offscreen({ destroy: true }),
+      layer('background'),
+      'sparkle',
+    ]);
 
-  wait(rand(0.15, 0.5), () => {
-    spawnPillars();
+    effect.play('sparkle');
+  }
+
+  wait(rand(0.6 / speed, 0.9 / speed), () => {
+    spawnBackgroundEffects(moveSpeed);
   });
 }
