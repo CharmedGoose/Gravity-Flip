@@ -33,6 +33,9 @@ const MINASTEROIDDELAY = 0.5;
 const MAXASTEROIDDELAY = 1.25;
 const ASTEROIDGRAVITY = 0.1;
 
+const MENUMUSICVOLUME = 1;
+const GAMEMUSICVOLUME = 0.5;
+
 kaplay();
 setGravity(7500);
 setBackground(Color.BLACK);
@@ -40,8 +43,8 @@ layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
 
-loadMusic('game', 'sounds/game.mp3'); // Cyberpunk Moonlight Sonata by Joth
-loadMusic('menu', 'sounds/menu.ogg'); // Old City Theme by remaxim
+loadSound('game', 'sounds/game.mp3'); // Cyberpunk Moonlight Sonata by Joth
+loadSound('menu', 'sounds/menu.ogg'); // Old City Theme by remaxim
 
 loadSprite('asteroid', 'sprites/asteroid.png');
 loadSprite('player', 'sprites/player.png', {
@@ -67,12 +70,13 @@ let speed = SPEED;
 let menuMusic: AudioPlay = null;
 let gameMusic: AudioPlay;
 
-play('menu', { volume: 1, loop: true });
+menuMusic = play('menu', { volume: MENUMUSICVOLUME, loop: true });
 
 scene('game', () => {
   menuMusic.stop();
   if (gameMusic) gameMusic.stop();
-  gameMusic = play('game', { volume: 1, loop: true });
+  gameMusic = play('game', { volume: GAMEMUSICVOLUME, loop: true });
+
   score = 0;
   setGravityDirection(new Vec2(0, 1));
 
@@ -186,7 +190,8 @@ scene('game', () => {
 
 scene('lose', () => {
   gameMusic.stop();
-  menuMusic = play('menu', { volume: 1, loop: true });
+  menuMusic = play('menu', { volume: MENUMUSICVOLUME, loop: true });
+
   speed = SPEED;
 
   menuPlayerMovement();
@@ -247,7 +252,7 @@ scene('start', () => {
   speed = SPEED;
 
   if (menuMusic == null) {
-    menuMusic = play('menu', { volume: 1, loop: true });
+    menuMusic = play('menu', { volume: MENUMUSICVOLUME, loop: true });
   }
 
   menuPlayerMovement();
