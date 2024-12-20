@@ -13,7 +13,7 @@ import kaplay, {
 import 'kaplay/global';
 
 const SPEED = 1;
-const SPPEDINCREMENT = 0.0001;
+const SPPEDINCREMENT = 0.00025;
 
 const JUMPHEIGHT = 2;
 
@@ -64,8 +64,10 @@ let score = 0;
 let highScore = 0;
 let speed = SPEED;
 
-let menuMusic: AudioPlay;
+let menuMusic: AudioPlay = null;
 let gameMusic: AudioPlay;
+
+play('menu', { volume: 1, loop: true });
 
 scene('game', () => {
   menuMusic.stop();
