@@ -14,7 +14,7 @@ import 'kaplay/global';
 const SPEED = 1;
 const SPPEDINCREMENT = 0.0001;
 
-const JUMPHEIGHT = 200;
+const JUMPHEIGHT = 2;
 
 const PLAYERMENUROTATESPEED = 0.5;
 const PLAYERMENUSPEED = 100;
