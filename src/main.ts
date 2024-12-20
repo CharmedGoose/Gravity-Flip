@@ -142,36 +142,24 @@ scene('game', () => {
 
     const random = rand() < 0.5;
 
-    if (random) {
-      block = add([
-        sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
-        area(),
-        body({ isStatic: false, gravityScale: ASTEROIDGRAVITY }),
-        outline(4, Color.fromHex('#2F2F2F')),
-        pos(width(), height() - 48),
-        anchor('bot'),
-        move(LEFT, ASTEROIDSPEED * speed),
-        offscreen({ destroy: true }),
-        layer('game'),
-        'obstacle',
-      ]);
-    } else {
-      block = add([
-        sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
-        area(),
-        body({ isStatic: false, gravityScale: ASTEROIDGRAVITY }),
-        outline(4, Color.fromHex('#2F2F2F')),
-        pos(width(), 48),
-        anchor('top'),
-        move(LEFT, ASTEROIDSPEED * speed),
-        offscreen({ destroy: true }),
-        layer('game'),
-        'obstacle',
-      ]);
-    }
+    block = add([
+      sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
+      area(),
+      body({ isStatic: false, gravityScale: ASTEROIDGRAVITY }),
+      outline(4, Color.fromHex('#2F2F2F')),
+      pos(width(), rand(48, height() - 48)),
+      anchor('center'),
+      move(LEFT, ASTEROIDSPEED * speed),
+      offscreen({ destroy: true }),
+      layer('game'),
+      'obstacle',
+    ]);
 
     block.onUpdate(() => {
-      if (block.pos.x + ASTEROIDWIDTH / 2 < player.pos.x && !hasScoreIncreased) {
+      if (
+        block.pos.x + ASTEROIDWIDTH / 2 < player.pos.x &&
+        !hasScoreIncreased
+      ) {
         hasScoreIncreased = true;
         score++;
         scoreText.text = score.toString();
@@ -220,13 +208,15 @@ scene('lose', () => {
     layer('ui'),
   ]);
 
-  onMouseDown(() => go('game'));
-  onKeyPress('space', () => go('game'));
+  wait(0.5, () => {
+    onMouseDown(() => go('game'));
+    onKeyPress('space', () => go('game'));
+  });
 });
 
 scene('start', () => {
   speed = SPEED;
-  
+
   menuPlayerMovement();
   spawnBackgroundEffects(EFFECTMENUSPEED);
 
