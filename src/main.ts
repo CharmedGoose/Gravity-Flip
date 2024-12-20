@@ -11,6 +11,27 @@ import kaplay, {
 } from 'kaplay';
 import 'kaplay/global';
 
+const SPEED = 1;
+const SPPEDINCREMENT = 0.0001;
+
+const JUMPHEIGHT = 200;
+
+const PLAYERMENUROTATESPEED = 0.5;
+const PLAYERMENUSPEED = 100;
+
+const EFFECTGAMESPEED = 500;
+const EFFECTMENUSPEED = 100;
+const MINEFFECTDELAY = 0.6;
+const MAXEFFECTDELAY = 0.9;
+const MAXSPARKLES = 2;
+
+const ASTEROIDSPEED = 1000;
+const ASTEROIDWIDTH = 133;
+const ASTEROIDHEIGHT = 112;
+const MINASTEROIDDELAY = 0.5;
+const MAXASTEROIDDELAY = 1.25;
+const ASTEROIDGRAVITY = 0.1;
+
 kaplay();
 setGravity(7500);
 setBackground(Color.BLACK);
@@ -36,7 +57,7 @@ loadSprite('sparkle', 'sprites/sparkle.png', {
 
 let score = 0;
 let highScore = 0;
-let speed = 1;
+let speed = SPEED;
 
 scene('game', () => {
   score = 0;
@@ -73,24 +94,27 @@ scene('game', () => {
 
   const player = add([
     pos(120, 80),
-    sprite('player', { width: 34, height: 44 }),
+    sprite('player', { width: 51, height: 66 }),
     area(),
     body({ stickToPlatform: false }),
     layer('game'),
     'player',
   ]);
 
-  spawnBackgroundEffects(500);
-  spawnBlocks();
+  spawnBackgroundEffects(EFFECTGAMESPEED);
+  spawnAsteroid();
 
   onKeyPress('space', () => {
     setGravityDirection(new Vec2(0, -getGravityDirection().y));
-    player.jump(200);
-    if (getGravityDirection().y < 0) {
-      player.play('upsideDown');
-    } else {
-      player.play('normal');
-    }
+    player.jump(JUMPHEIGHT);
+
+    player.play(getGravityDirection().y < 0 ? 'upsideDown' : 'normal');
+  });
+  onMousePress(() => {
+    setGravityDirection(new Vec2(0, -getGravityDirection().y));
+    player.jump(JUMPHEIGHT);
+
+    player.play(getGravityDirection().y < 0 ? 'upsideDown' : 'normal');
   });
 
   player.onCollide('obstacle', () => {
@@ -99,10 +123,10 @@ scene('game', () => {
   });
 
   onUpdate(() => {
-    speed += 0.0001;
+    speed += SPPEDINCREMENT;
   });
 
-  function spawnBlocks() {
+  function spawnAsteroid() {
     let block: GameObj<
       | BodyComp
       | RectComp
@@ -115,31 +139,31 @@ scene('game', () => {
     >;
 
     let hasScoreIncreased = false;
+
     const random = rand() < 0.5;
-    const wdithOfBlock = rand(200, 400);
 
     if (random) {
       block = add([
-        sprite('asteroid', { width: 133, height: 112 }),
+        sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
         area(),
-        body({ isStatic: false, gravityScale: 0.1 }),
+        body({ isStatic: false, gravityScale: ASTEROIDGRAVITY }),
         outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), height() - 48),
         anchor('bot'),
-        move(LEFT, 1000 * speed),
+        move(LEFT, ASTEROIDSPEED * speed),
         offscreen({ destroy: true }),
         layer('game'),
         'obstacle',
       ]);
     } else {
       block = add([
-        sprite('asteroid', { width: 133, height: 112 }),
+        sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
         area(),
-        body({ isStatic: false, gravityScale: 0.1 }),
+        body({ isStatic: false, gravityScale: ASTEROIDGRAVITY }),
         outline(4, Color.fromHex('#2F2F2F')),
         pos(width(), 48),
         anchor('top'),
-        move(LEFT, 1000 * speed),
+        move(LEFT, ASTEROIDSPEED * speed),
         offscreen({ destroy: true }),
         layer('game'),
         'obstacle',
@@ -147,51 +171,29 @@ scene('game', () => {
     }
 
     block.onUpdate(() => {
-      if (block.pos.x + wdithOfBlock / 2 < player.pos.x && !hasScoreIncreased) {
+      if (block.pos.x + ASTEROIDWIDTH / 2 < player.pos.x && !hasScoreIncreased) {
         hasScoreIncreased = true;
         score++;
         scoreText.text = score.toString();
       }
     });
 
-    wait(rand(0.5 / speed, 1.25 / speed), () => {
-      spawnBlocks();
+    wait(rand(MINASTEROIDDELAY / speed, MAXASTEROIDDELAY / speed), () => {
+      spawnAsteroid();
     });
   }
 });
 
 scene('lose', () => {
-  speed = 1;
+  speed = SPEED;
 
-  let invert = false;
-  const player = add([
-    pos(0, height() / 2),
-    sprite('player', { width: 68, height: 88 }),
-    anchor('center'),
-    rotate(),
-    layer('game'),
-  ]);
-
-  onUpdate(() => {
-    if (player.pos.x >= width()) {
-      invert = true;
-    } else if (player.pos.x <= 0) {
-      invert = false;
-    }
-
-    if (invert) {
-      player.moveTo(0, height() / 2, 100);
-    } else {
-      player.moveTo(width(), height() / 2, 100);
-    }
-    player.rotateBy(0.5);
-  });
-
-  spawnBackgroundEffects(100);
+  menuPlayerMovement();
+  spawnBackgroundEffects(EFFECTMENUSPEED);
 
   if (score > highScore) {
     highScore = score;
   }
+
   add([
     text(`Game Over \nScore: ${score} \nHigh Score: ${highScore}`, {
       align: 'center',
@@ -201,31 +203,50 @@ scene('lose', () => {
     color(Color.WHITE),
     layer('ui'),
   ]);
+
   add([
     rect(200, 50),
     pos(center().add(0, 100)),
-    outline(),
-    area(),
     anchor('center'),
-    body({ isStatic: true }),
     color(Color.GREEN),
     layer('ui'),
-  ]).onClick(() => go('game'));
+  ]);
   add([
     text('Try Again'),
     pos(center().add(0, 100)),
     outline(),
-    area(),
     anchor('center'),
-    body({ isStatic: true }),
     color(Color.BLACK),
     layer('ui'),
-  ]).onClick(() => go('game'));
+  ]);
+
+  onMouseDown(() => go('game'));
   onKeyPress('space', () => go('game'));
 });
 
 scene('start', () => {
+  speed = SPEED;
+  
+  menuPlayerMovement();
+  spawnBackgroundEffects(EFFECTMENUSPEED);
+
+  add([
+    text('Press Space to Start'),
+    pos(center()),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]);
+
+  onKeyPress('space', () => go('game'));
+  onMousePress(() => go('game'));
+});
+
+go('start');
+
+function menuPlayerMovement() {
   let invert = false;
+
   const player = add([
     pos(0, height() / 2),
     sprite('player', { width: 68, height: 88 }),
@@ -241,31 +262,13 @@ scene('start', () => {
       invert = false;
     }
 
-    if (invert) {
-      player.moveTo(0, height() / 2, 100);
-    } else 
-    {
-      player.moveTo(width(), height() / 2, 100);
-    }
-    player.rotateBy(0.5);
+    player.moveTo(invert ? 0 : width(), height() / 2, PLAYERMENUSPEED);
+    player.rotateBy(PLAYERMENUROTATESPEED);
   });
-
-  spawnBackgroundEffects(100);
-  add([
-    text('Press Space to Start'),
-    pos(center()),
-    anchor('center'),
-    color(Color.WHITE),
-    layer('ui'),
-  ]);
-
-  onKeyPress('space', () => go('game'));
-});
-
-go('start');
+}
 
 function spawnBackgroundEffects(moveSpeed: number) {
-  for (let i = 0; i < rand(1, 2); i++) {
+  for (let i = 0; i < rand(1, MAXSPARKLES); i++) {
     const effect = add([
       sprite('sparkle'),
       pos(rand(width() - 200, width()), rand(0, height())),
@@ -273,13 +276,12 @@ function spawnBackgroundEffects(moveSpeed: number) {
       move(LEFT, moveSpeed * speed),
       offscreen({ destroy: true }),
       layer('background'),
-      'sparkle',
     ]);
 
     effect.play('sparkle');
   }
 
-  wait(rand(0.6 / speed, 0.9 / speed), () => {
+  wait(rand(MINEFFECTDELAY / speed, MAXEFFECTDELAY / speed), () => {
     spawnBackgroundEffects(moveSpeed);
   });
 }
