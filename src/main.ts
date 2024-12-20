@@ -1,6 +1,7 @@
 import kaplay, {
   AnchorComp,
   AreaComp,
+  AudioPlay,
   BodyComp,
   EmptyComp,
   GameObj,
@@ -38,6 +39,10 @@ setBackground(Color.BLACK);
 layers(['background', 'game', 'ui'], 'game');
 
 loadRoot('./');
+
+loadMusic('game', 'sounds/game.mp3'); // Cyberpunk Moonlight Sonata by Joth
+loadMusic('menu', 'sounds/menu.ogg'); // Old City Theme by remaxim
+
 loadSprite('asteroid', 'sprites/asteroid.png');
 loadSprite('player', 'sprites/player.png', {
   sliceX: 2,
@@ -59,7 +64,13 @@ let score = 0;
 let highScore = 0;
 let speed = SPEED;
 
+let menuMusic: AudioPlay;
+let gameMusic: AudioPlay;
+
 scene('game', () => {
+  menuMusic.stop();
+  if (gameMusic) gameMusic.stop();
+  gameMusic = play('game', { volume: 1, loop: true });
   score = 0;
   setGravityDirection(new Vec2(0, 1));
 
@@ -119,6 +130,7 @@ scene('game', () => {
 
   player.onCollide('obstacle', () => {
     shake();
+    gameMusic.stop();
     go('lose');
   });
 
@@ -139,8 +151,6 @@ scene('game', () => {
     >;
 
     let hasScoreIncreased = false;
-
-    const random = rand() < 0.5;
 
     block = add([
       sprite('asteroid', { width: ASTEROIDWIDTH, height: ASTEROIDHEIGHT }),
@@ -173,6 +183,8 @@ scene('game', () => {
 });
 
 scene('lose', () => {
+  gameMusic.stop();
+  menuMusic = play('menu', { volume: 1, loop: true });
   speed = SPEED;
 
   menuPlayerMovement();
@@ -195,27 +207,46 @@ scene('lose', () => {
   add([
     rect(200, 50),
     pos(center().add(0, 100)),
+    area(),
     anchor('center'),
     color(Color.GREEN),
     layer('ui'),
-  ]);
+  ]).onClick(() => go('game'));
   add([
     text('Try Again'),
     pos(center().add(0, 100)),
-    outline(),
+    area(),
     anchor('center'),
     color(Color.BLACK),
     layer('ui'),
-  ]);
+  ]).onClick(() => go('game'));
 
-  wait(0.5, () => {
-    onMouseDown(() => go('game'));
-    onKeyPress('space', () => go('game'));
-  });
+  add([
+    rect(200, 50),
+    pos(center().add(0, 175)),
+    area(),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]).onClick(() => go('start'));
+  add([
+    text('Main Menu'),
+    pos(center().add(0, 175)),
+    area(),
+    anchor('center'),
+    color(Color.BLACK),
+    layer('ui'),
+  ]).onClick(() => go('start'));
+
+  onKeyPress('space', () => go('game'));
 });
 
 scene('start', () => {
   speed = SPEED;
+
+  if (menuMusic == null) {
+    menuMusic = play('menu', { volume: 1, loop: true });
+  }
 
   menuPlayerMovement();
   spawnBackgroundEffects(EFFECTMENUSPEED);
@@ -228,8 +259,55 @@ scene('start', () => {
     layer('ui'),
   ]);
 
+  add([
+    rect(150, 50),
+    pos(width() - 150, height() - 100),
+    area(),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]).onClick(() => go('credits'));
+  add([
+    text('Credits'),
+    pos(width() - 150, height() - 100),
+    area(),
+    anchor('center'),
+    color(Color.BLACK),
+    layer('ui'),
+  ]).onClick(() => go('credits'));
+
   onKeyPress('space', () => go('game'));
-  onMousePress(() => go('game'));
+});
+
+scene('credits', () => {
+  speed = SPEED;
+
+  spawnBackgroundEffects(EFFECTMENUSPEED);
+
+  add([
+    text('Made by Goose\n\nMusic:\nOld City Theme by remaxim\nCyberpunk Moonlight Sonata by Joth', { align: 'center' }), // sorry for hard readabilty
+    pos(center()),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]);
+
+  add([
+    rect(150, 50),
+    pos(width() - 150, height() - 100),
+    area(),
+    anchor('center'),
+    color(Color.WHITE),
+    layer('ui'),
+  ]).onClick(() => go('start'));
+  add([
+    text('Back'),
+    pos(width() - 150, height() - 100),
+    area(),
+    anchor('center'),
+    color(Color.BLACK),
+    layer('ui'),
+  ]).onClick(() => go('start'));
 });
 
 go('start');
