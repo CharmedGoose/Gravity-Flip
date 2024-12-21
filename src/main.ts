@@ -88,7 +88,6 @@ scene('game', () => {
     body({ isStatic: true }),
     color(Color.BLACK),
     layer('game'),
-    'floor',
   ]);
   add([
     rect(width(), 48),
@@ -98,7 +97,6 @@ scene('game', () => {
     body({ isStatic: true }),
     color(Color.BLACK),
     layer('game'),
-    'ceiling',
   ]);
 
   const scoreText = add([
