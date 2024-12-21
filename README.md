@@ -6,7 +6,7 @@ Flip gravity to avoid asteroids
 
 ## Controls
 
-Space or Left Click to flip gravity
+Space or Click to flip gravity
 
 ## Running Locally
 
